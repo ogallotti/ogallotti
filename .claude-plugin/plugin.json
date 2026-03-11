@@ -1,0 +1,10 @@
+{
+  "name": "team-powers",
+  "description": "Fork of superpowers adapted for Agent Teams paradigm: dynamic specialist composition, shared task lists, inter-teammate reviews",
+  "version": "1.0.0",
+  "author": {
+    "name": "Gallotti"
+  },
+  "license": "MIT",
+  "keywords": ["skills", "agent-teams", "tdd", "debugging", "collaboration", "best-practices", "workflows"]
+}
