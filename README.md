@@ -16,6 +16,8 @@ Adicione ao seu `~/.claude/settings.json`:
 }
 ```
 
+> **Nota:** Agent Teams é uma feature experimental do Claude Code. O plugin funciona sem ela (usando subagents e execução sequencial), mas as skills de composição dinâmica de equipes (`composing-agent-teams`, `team-driven-development`, `dispatching-parallel-teams`) requerem Agent Teams habilitado. Veja a [documentação oficial](https://code.claude.com/docs/en/agent-teams) para detalhes e limitações.
+
 ### 2. Adicione o marketplace
 
 No Claude Code, execute:
@@ -85,10 +87,11 @@ O Team Powers adapta todas as skills do Superpowers para este novo paradigma, ad
 
 | Componente | Descrição |
 |-|-|
-| `agents/code-reviewer.md` | Agente especializado em code review |
+| `agents/code-reviewer.md` | Agente de code review com revisão de segurança (OWASP top 10) e escalation protocol |
 | `commands/` | Atalhos: `/brainstorm`, `/write-plan`, `/execute-plan` |
-| `hooks/` | SessionStart hook que injeta skills no contexto |
-| `lib/skills-core.js` | Runtime com descoberta dinâmica de skills |
+| `hooks/session-start` | Injeta skills no contexto da sessão |
+| `hooks/teammate-idle` | Quality gate: lembra teammates de checar tasks antes de ficar idle |
+| `lib/skills-core.js` | Runtime com descoberta dinâmica de skills, cache de resolução e skill shadowing |
 | `docs/` | Planos de exemplo e documentação técnica |
 
 ## Workflow básico
@@ -103,12 +106,20 @@ As skills ativam automaticamente. Você não precisa fazer nada especial — seu
 
 ## Quando usar Agent Teams vs Subagents
 
+Seguindo a [guidance oficial da Anthropic](https://code.claude.com/docs/en/agent-teams#when-to-use-agent-teams):
+
 | Cenário | Abordagem |
 |-|-|
 | 2+ domínios de expertise (front + back, código + jurídico) | Agent Teams |
 | Teammates precisam debater ou compartilhar findings | Agent Teams |
-| Tarefa focada, só o resultado importa | Subagents |
+| Debugging com hipóteses concorrentes | Agent Teams |
+| Tarefa focada, só o resultado importa (review, pesquisa, verificação) | Subagents |
 | Domínio único, tarefas sequenciais | Solo / Subagents |
+| Edições no mesmo arquivo por múltiplos agents | Solo (evitar conflitos) |
+
+**Ponto de transição:** Se você está rodando subagents em paralelo e eles precisam comunicar entre si ou você está batendo limites de contexto, Agent Teams são o próximo passo natural.
+
+> **Agent Teams usam significativamente mais tokens** que uma sessão única. Para tarefas sequenciais, edições no mesmo arquivo, ou trabalho com muitas dependências, uma sessão única ou subagents são mais eficazes.
 
 ## Créditos e agradecimentos
 
